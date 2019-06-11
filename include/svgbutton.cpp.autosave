@@ -1,0 +1,394 @@
+#include "svgbutton.h"
+#include <QEvent>
+#include <QMouseEvent>
+#include <QFileInfo>
+#include <QPropertyAnimation>
+#include <QtDebug>
+#include <QTimer>
+#include "globalarg.h"
+#include <Windows.h>
+#include <winuser.h>
+#include <QPainter>
+#define SVG_PATH ":/res/svg/"
+
+SvgButton::SvgButton(QWidget *parent) : QSvgWidget(parent)
+{
+    init();
+    _ratio = 1.0;
+}
+
+SvgButton::SvgButton(const qreal &ratio, QWidget *parent) : QSvgWidget(parent)
+{
+    init();
+    _ratio = ratio;
+    _isAnimalOn = true;
+}
+
+SvgButton::~SvgButton()
+{
+    if(p_timer) {
+        p_timer->disconnect();
+        p_timer->stop();
+    }
+}
+
+void SvgButton::openAnimal(bool b)
+{
+    _isAnimalOn = b;
+}
+
+void SvgButton::setImagePrefixName(const QString &prefixName)
+{
+    if(prefixName.isEmpty())
+    {
+        qWarning() << "不能为空" << __PRETTY_FUNCTION__;
+        return;
+    }
+
+    setEnterImage(SVG_PATH + prefixName + "_on.svg");
+    setNormalImage(SVG_PATH + prefixName + "_nor.svg");
+
+    if(_leave)
+        setCurShowedImage(_normalImage);
+    else
+        setCurShowedImage(_enterImage);
+}
+
+void SvgButton::setSvgText(QString text)
+{
+    _svgText = text;
+    _font.setFamily(Global->getFontFamily());
+    this->repaint();
+}
+
+void SvgButton::setSvgTextColor(QColor textON, QColor textNor)
+{
+    _svgTextColor_nor = textNor;
+    _svgTextColor_on  = textON;
+}
+
+void SvgButton::setSvgTextCenter(bool isCenter)
+{
+    _textCenter = isCenter;
+}
+
+void SvgButton::setSvgTextFlag(int flag)
+{
+    _textFlag = flag;
+}
+
+void SvgButton::setSvgTextXpos(int x)
+{
+    _textDrawX = x;
+}
+
+void SvgButton::setSvgTextFontSize(QFont font, int fontsize)
+{
+    _font = font;
+    _fontSize = fontsize;
+}
+
+void SvgButton::setshowDis()
+{
+    if(_leave)
+        setCurShowedImage(_normalImage);
+    else
+        setCurShowedImage(_enterImage);
+}
+
+void SvgButton::updateUI(const qreal &scaleRatio)
+{
+    const int w = _originalWidth * scaleRatio;
+    const int h = _originalHeight * scaleRatio;
+    if(_isAnimalOn)
+    {
+        this->setMinimumSize(w, h);
+        this->setMaximumSize(w * _ratio, h * _ratio);
+        this->resize(w, h);
+    }
+    else
+    {
+        this->setFixedSize(w, h);
+    }
+}
+
+void SvgButton::initSize(const int &w, const int &h)
+{
+    _originalWidth = w;
+    _originalHeight = h;
+
+    updateUI(1.0);
+}
+
+void SvgButton::initSize(const QSize &size)
+{
+    initSize(size.width(), size.height());
+}
+
+QSize SvgButton::sizeHint() const
+{
+    return QSize(_originalWidth, _originalHeight);
+}
+
+void SvgButton::changeState(const QString &file, const bool &b)
+{
+    if(b) {
+        setEnterImage(SVG_PATH + file + "_on.svg");
+        setNormalImage(SVG_PATH + file + "_on.svg");
+    } else {
+        setEnterImage(SVG_PATH + file + "_nor.svg");
+        setNormalImage(SVG_PATH + file + "_nor.svg");
+    }
+    setCurShowedImage(_normalImage);
+}
+
+void SvgButton::resetMove(const int &x, const int &y)
+{
+    this->move(x, y);
+    if(_isAnimalOn && _animation) {
+        _animation->setStartValue(QRect(QPoint(x, y), _animation->startValue().toRect().size()));
+    }
+}
+
+void SvgButton::init()
+{
+    i_rectLen = 0;
+    p_timer = NULL;
+    _leave = true;
+    _isPressed  = false;
+    _isAnimalOn = false;
+    _isIgnoreLeave = false;
+    _svgText = "";
+    _textCenter = false;
+    _textDrawX = 0;
+    _font.setBold(true);
+    _font.setFamily(Global->getFontFamily());
+    _font.setLetterSpacing(QFont::AbsoluteSpacing,1);
+    _fontSize = 13;
+    _textFlag = Qt::AlignCenter;
+    _svgTextColor_nor.setRgb(255,255,255);
+    _svgTextColor_on.setRgb(255,255,255);
+    _animation = Q_NULLPTR;
+    this->setAttribute(Qt::WA_DeleteOnClose);
+    this->setStyleSheet("background-color:white");
+}
+
+void SvgButton::leave()
+{
+    if(_isAnimalOn)
+    {
+        if(_animation)
+        {
+            _animation->stop();
+            this->setGeometry(_animation->startValue().toRect());
+        }
+    }
+
+    if(!_leave) {
+        _leave = true;
+        if(isEnabled())
+            setCurShowedImage(_normalImage);
+    }
+}
+
+void SvgButton::setCurShowedImage(const QString &img)
+{
+    if(!QFileInfo::exists(img))
+    {
+        qWarning() << img << "不存在" << __PRETTY_FUNCTION__;
+        return;
+    }
+    _curShowImg = img;
+    this->load(img);
+}
+
+void SvgButton::mousePressEvent(QMouseEvent *e)
+{
+    _leave = false;
+    _isPressed = true;
+
+    if(_isAnimalOn)
+    {
+        if(_animation)
+        {
+            _animation->stop();
+            this->setGeometry(_animation->startValue().toRect());
+        }
+    }
+    setCurShowedImage(_enterImage);
+    e->accept();
+}
+
+void SvgButton::mouseMoveEvent(QMouseEvent *e)
+{
+    if(!_leave)
+    {
+        if(!this->rect().contains(e->pos()))
+        {
+            leave();
+        }
+    }
+    e->accept();
+}
+
+void SvgButton::mouseReleaseEvent(QMouseEvent *e)
+{
+    _isPressed = false;
+    if(!_leave)
+    {
+        if(this->rect().contains(e->pos()))
+        {
+            setCurShowedImage(_enterImage);
+            if(e->button() == Qt::RightButton)
+            {
+                emit clicked_r();
+            }
+            else
+            {
+                emit clicked();
+                if(p_timer)
+                {
+                    i_rectLen = 0;
+                    p_timer->start();
+                }
+            }
+        }
+    }
+    e->accept();
+}
+#include <QToolTip>
+void SvgButton::enterEvent(QEvent *e)
+{
+    ::SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+    if(_leave && this->isEnabled())
+    {
+        _leave = false;
+        setCurShowedImage(_enterImage);
+
+        if(_isAnimalOn)
+        {
+            this->raise();
+            if(_animation == Q_NULLPTR)
+            {
+                _animation = new QPropertyAnimation(this);
+                _animation->setTargetObject(this);
+                _animation->setPropertyName("geometry");
+                _animation->setDuration(100);
+            }
+            _animation->setStartValue(this->geometry());
+            _animation->setEndValue(QRect(geometry().x() - (_ratio-1.0)/2 * geometry().width(),
+                                          geometry().y() - (_ratio-1.0)/2 * geometry().height() ,
+                                          geometry().width()  * _ratio,
+                                          geometry().height() * _ratio));
+
+            _animation->start();
+        }
+    }
+    if(_isIgnoreLeave && !this->toolTip().isEmpty())
+        QToolTip::showText(QCursor::pos(), this->toolTip(), this, QRect(0,0,300,80));
+    e->accept();
+}
+
+void SvgButton::leaveEvent(QEvent *e)
+{
+    //在外部控制栏下，鼠标离开事件是 先离开后释放，正常是先释放后离开
+    if(!_isPressed || !_isIgnoreLeave) {//正常离开 还是 按下后离开？
+        leave();
+    }
+
+    e->accept();
+}
+
+void SvgButton::showEvent(QShowEvent *e)
+{
+    if(!this->isEnabled()) {
+        setCurShowedImage(_normalImage);
+    }
+    e->accept();
+}
+
+void SvgButton::changeEvent(QEvent *e)
+{
+    switch (e->type())
+    {
+    case QEvent::EnabledChange:
+    {
+        if(!this->isEnabled())
+            setCurShowedImage(_normalImage);
+        }
+        e->accept();
+        return;
+    }
+    default: break;
+    }
+    QSvgWidget::changeEvent(e);
+}
+#include <QSvgRenderer>
+void SvgButton::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+
+    this->renderer()->render(&p);
+
+    const int w = this->width();
+    const int h = this->height();
+
+    if(!_svgText.isEmpty()) {
+        QRect rect;
+        if(_curShowImg.endsWith("_on.svg")) {
+            _font.setPixelSize((_fontSize*Global->_screenRatio*_ratio));
+            rect.setX(0);
+            if(_textCenter)
+                rect.setY((h-20*Global->_screenRatio*_ratio)/2);
+            else
+                rect.setY(h*2/3);
+            rect.setWidth(w - _textDrawX);
+            rect.setHeight(20*Global->_screenRatio*_ratio);
+            //p.setPen(QColor(244,244,244));
+            p.setPen(_svgTextColor_on);
+        } else {
+            _font.setPixelSize((_fontSize*Global->_screenRatio));
+            rect.setX(0);
+            if(_textCenter)
+                rect.setY((h-20*Global->_screenRatio)/2);
+            else
+                rect.setY(h*2/3);
+            rect.setWidth(w - _textDrawX);
+            rect.setHeight(20*Global->_screenRatio);
+            //p.setPen(QColor(126,126,126));
+            p.setPen(_svgTextColor_nor);
+        }
+        p.setFont(_font);
+        p.drawText(rect,_textFlag,_svgText);
+    } else if(i_rectLen>0 && p_timer != NULL){
+        //截图动画
+        QColor color(255,255,255,120);
+        if(i_rectLen == w/2)
+            color.setAlpha(180);
+        p.fillRect(0,          0,i_rectLen,h, color);
+        p.fillRect(w-i_rectLen,0,i_rectLen,h, color);
+    }
+}
+
+void SvgButton::showAnimal()
+{
+    if(p_timer == NULL) {
+        p_timer = new QTimer(this);
+        p_timer->setInterval(80);
+        //p_timer->setSingleShot(true);
+        connect(p_timer, SIGNAL(timeout()), this, SLOT(timerOut()));
+    }
+}
+
+void SvgButton::timerOut()
+{
+    i_rectLen += 2;
+    if(i_rectLen > this->width()/2) {
+        p_timer->stop();
+        i_rectLen = 0;
+        update();
+        return;
+    }
+    update();
+}

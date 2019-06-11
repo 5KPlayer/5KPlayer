@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>title</key>
+		<string>BBC Sport Live</string>
+		<key>icon</key>
+		<string>bbc.jpg</string>
+		<key>url</key>
+		<string>http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio5live_mf_p?s=1428556760&amp;e=1428571160&amp;h=ca7f382f56fdebc5f3ea3c23e5e62a3a</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>CBS Sports Radio</string>
+		<key>icon</key>
+		<string>cbssports.jpg</string>
+		<key>url</key>
+		<string>http://1661.live.streamtheworld.com:80/WJFKAMAAC_SC?TGT=iTunes&amp;DIST=CBS&amp;SRC=CBS</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>NBC Sports</string>
+		<key>icon</key>
+		<string>nbcsports.jpg</string>
+		<key>url</key>
+		<string>http://stream.us.gslb.liquidcompass.net/KDUSAMAAC?ats=1</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>HOTMIXRADIO 80</string>
+		<key>icon</key>
+		<string>hotmix80.png</string>
+		<key>url</key>
+		<string>http://streamingads.hotmixradio.fm/hotmixradio-80-64.aac</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>ABC Lounge</string>
+		<key>icon</key>
+		<string>abclounge.jpeg</string>
+		<key>url</key>
+		<string>http://streaming.radionomy.com/ABC-Lounge</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>FRÉQUENCE3</string>
+		<key>icon</key>
+		<string>frequence.jpg</string>
+		<key>url</key>
+		<string>http://ice.stream.frequence3.net/frequence3-128.mp3</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>Atomik_Radio</string>
+		<key>icon</key>
+		<string>atomikradio.jpg</string>
+		<key>url</key>
+		<string>http://streaming.radionomy.com/atomik_radio</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>Kiss FM</string>
+		<key>icon</key>
+		<string>kissfm.png</string>
+		<key>url</key>
+		<string>http://online-kissfm.tavrmedia.ua/KissFM</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>THE BUFFALO</string>
+		<key>icon</key>
+		<string>buffalo.jpg</string>
+		<key>url</key>
+		<string>http://streaming.radionomy.com/The-Buffalo</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>Music Radio</string>
+		<key>icon</key>
+		<string>musicradio.jpg</string>
+		<key>url</key>
+		<string>http://streaming206.radionomy.com:8888/The-Music-Radio</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>BESTRADIO</string>
+		<key>icon</key>
+		<string>bestradio.jpg</string>
+		<key>url</key>
+		<string>http://streaming.radionomy.com/BestRadio</string>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>HEART FM</string>
+		<key>icon</key>
+		<string>heartfm.jpg</string>
+		<key>url</key>
+		<string>http://streaming.radionomy.com/heart-fm</string>
+	</dict>
+</array>
+</plist>
