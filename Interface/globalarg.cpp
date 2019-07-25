@@ -26,8 +26,8 @@ CGlobal::CGlobal(QObject *parent) : QObject(parent)
     _fontRatio = _screenRatio = 1.0;
 
     _cur_path = "";
-    _version_maj = 5;
-    _version_min = 8;
+    _version_maj = 6;
+    _version_min = 0;
 
     _user_ytb    = false;
     _down_ytb    = false;

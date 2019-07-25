@@ -570,12 +570,28 @@ void CMenu::initSubMenu()
 
     //语言 ToDo
     _langMenu = new QMenu(Lge->getLangageValue("Menu/language"));
-    QHash<QString, QString> hash = Global->languageList();
-    QHashIterator<QString, QString> i(hash);
-    while(i.hasNext()) {
-        i.next();
-        QAction *ac = _langMenu->addAction(i.value());
-        ac->setData(i.key());
+    QList<QString> langs = Global->languageList();
+    foreach (QString lang, langs) {
+        QString action = "English";
+        if(lang == "zh") {
+            action = "中文繁體";
+        } else if(lang == "jp") {
+            action = "日本語";
+        } else if(lang == "fr") {
+            action = "Français";
+        } else if(lang == "es") {
+            action = "Español";
+        } else if(lang == "de") {
+            action = "Deutsch";
+        } else if(lang == "it") {
+            action = "Italiano";
+        } else if(lang == "pt") {
+            action = "Português";
+        } else {
+            action = "English";
+        }
+        QAction *ac = _langMenu->addAction(action);
+        ac->setData(lang);
         ac->setCheckable(true);
         ac->setActionGroup(_languageGroup);
         ac->setChecked(Global->getLanguage() == i.key());
