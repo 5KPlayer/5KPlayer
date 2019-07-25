@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QtDebug>
 #include <QSysInfo>
+#include <QThread>
 #include "vlc/vlc.h"
 #include "dyenums.h"
 #include "dyinstance.h"
@@ -9,10 +10,12 @@
 #include "globalarg.h"
 #include "librarydata.h"
 #include "ffmpeg/displayscreen.h"
+#include "playermainwidget.h"
 
 DYMedia::DYMedia(const QString &location, bool localFile, DYInstance *instance) : QObject(instance)
 {
     _vlcMedia = NULL;
+    _userHard = false;
     initMedia(location, localFile, instance);
 }
 
@@ -35,6 +38,11 @@ QString DYMedia::curFile() const
     return _currentLocation;
 }
 
+bool DYMedia::curUserHead()
+{
+    return _userHard;
+}
+
 void DYMedia::initMedia(const QString &location, bool localFile, DYInstance *instance)
 {
     _currentLocation = location;
@@ -55,35 +63,60 @@ void DYMedia::initMedia(const QString &location, bool localFile, DYInstance *ins
         _vlcMedia = libvlc_media_new_location(instance->core(), l.toUtf8().data());
 
     //--------------开启硬件加速 只能在这个地方，不能在libvlc_new里面添加--------------//
-    libvlc_media_add_option(_vlcMedia, ":avcodec-hw=none");
-    if(LibData->isHDCurVideo() && Global->useHardware() == 1) {
-        int hwType = Global->userHwType();
-        QString codec = LibData->getCurMediaCodec().toLower();
-        switch (hwType) {
-        case 0:
-            // 启用dxva2
-            libvlc_media_add_option(_vlcMedia, ":avcodec-hw=dxva2");
-            break;
-        case 1:
-            // Intel QuickSync
+#ifdef Q_OS_WIN
+    _userHard = false;
+    QString codec = LibData->getCurMediaCodec().toLower();
+    if(LibData->isHDCurVideo() && (codec == "h264" || codec == "hevc")) {
+        if(Global->hasDecHardware(CardDXVA,codec)) {
+            if(!PMW->getViewState()) {
+                if(Global->winVersion() == 10) {
+                    libvlc_media_add_option(_vlcMedia, ":avcodec-hw=d3d11va");
+                } else {
+                    libvlc_media_add_option(_vlcMedia, ":avcodec-hw=any");
+                }
+                _userHard = true;
+            }
+        } else if(Global->hasDecHardware(CardIntel,codec)) {
             if(codec =="h264") {
-                if(DisScreen->supQsvDecoder(LibData->getcurmediaPath(),"h264_qsv") == 1) {
+                if(DisScreen->supQsvDecoder(LibData->getcurmediaPath(),"h264_qsv") == 1
+                   && !PMW->getViewState()) {
                     libvlc_media_add_option(_vlcMedia, ":avcodec-codec=h264_qsv");
+                    _userHard = true;
                 }
             }
-            break;
-        case 2:
-            // NVIDIA CUVID
+        } else if(Global->hasDecHardware(CardNvidia,codec)) {
             if(codec =="h264") {
-                if(DisScreen->supQsvDecoder(LibData->getcurmediaPath(),"h264_cuvid") == 1) {
+                if(DisScreen->supQsvDecoder(LibData->getcurmediaPath(),"h264_cuvid") == 1
+                   && !PMW->getViewState()) {
                     libvlc_media_add_option(_vlcMedia, ":avcodec-codec=h264_cuvid");
+                    _userHard = true;
+                }
+            } else if(codec == "hevc") {
+                if(DisScreen->supQsvDecoder(LibData->getcurmediaPath(),"hevc_cuvid") == 1
+                   && !PMW->getViewState()) {
+                    libvlc_media_add_option(_vlcMedia, ":avcodec-codec=hevc_cuvid");
+                    _userHard = true;
                 }
             }
-            break;
-        default:
-            break;
         }
     }
+    if(!_userHard) {
+        libvlc_media_add_option(_vlcMedia, ":avcodec-hw=none");
+    }
+#ifdef Q_OS_WIN64
+
+#else
+    // hevc 10bit播放时会出现黑屏现象，
+    if(codec == "hevc") {
+        int cpuCount = QThread::idealThreadCount();
+        if(cpuCount >= 6) {
+            cpuCount = 5;
+        }
+        QString cpuNum = QString(":avcodec-threads=%1").arg(QString::number(cpuCount));
+        libvlc_media_add_option(_vlcMedia, cpuNum.toLatin1().constData());
+    }
+#endif
+#endif
 //    bool useDxva2 = Global->dxva2();
 //    if (useDxva2)
 //        libvlc_media_add_option(_vlcMedia, ":avcodec-hw=dxva2");
@@ -117,15 +150,15 @@ void DYMedia::initMedia(const QString &location, bool localFile, DYInstance *ins
     libvlc_media_add_option(_vlcMedia, ":file-caching=1000");
     libvlc_media_add_option(_vlcMedia, ":disc-caching=1000");
     libvlc_media_add_option(_vlcMedia, ":network-caching=1000");
-
-    //设置windows系统版本号
-    const QString version = QString(":windows-version=%1").arg(Global->winVersion());
-    libvlc_media_add_option(_vlcMedia, version.toLatin1().constData());
+#ifdef Q_OS_WIN
+//    //设置windows系统版本号
+//    const QString version = QString(":windows-version=%1").arg(Global->winVersion());
+//    libvlc_media_add_option(_vlcMedia, version.toLatin1().constData());
 
     //设置DVD打开方式
     QString dvdType = QString(":dvd-type=%1").arg(Global->dvdOpenType());
     libvlc_media_add_option(_vlcMedia,dvdType.toLatin1().constData());
-
+#endif
     //createCoreConnections();
 }
 /*

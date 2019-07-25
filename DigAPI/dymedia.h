@@ -22,6 +22,7 @@ public:
     libvlc_media_t *core();
 
     QString curFile() const;
+    bool    curUserHead();
 
 signals:
     /*!
@@ -41,6 +42,7 @@ private:
     libvlc_media_t *_vlcMedia;
 
     QString _currentLocation;
+    bool    _userHard;
 };
 
 #endif // DYVLCMEDIA_H

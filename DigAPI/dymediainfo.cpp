@@ -2,7 +2,7 @@
 #include "vlc.h"
 #include <QtDebug>
 
-#include <vlc_common.h>
+#define LIBVLC_USE_PTHREAD_CANCEL 1
 #include "vlc/plugins/vlc_fourcc.h"
 
 DYMediaInfo::DYMediaInfo() { }
@@ -70,7 +70,7 @@ void DYMediaInfo::parse(libvlc_media_player_t *m)
             video->i_frame_rate_num = t[i]->video->i_frame_rate_num;
             video->i_frame_rate_den = t[i]->video->i_frame_rate_den;
 
-            if(n == d && n != 0) {
+            if(n == d) {
                 const int tmp = gcd(w, h);
                 video->i_dar_w  = w/tmp;
                 video->i_dar_h  = h/tmp;

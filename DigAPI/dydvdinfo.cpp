@@ -1,8 +1,12 @@
 #include "dydvdinfo.h"
-
+#define LIBVLC_USE_PTHREAD_CANCEL 1
 #include <vlc/vlc.h>
 #include <vlc/plugins/vlc_common.h>
+#include <vlc/plugins/vlc_modules.h>
 #include <vlc/plugins/vlc_charset.h>
+#include <vlc/plugins/vlc_input.h>
+#include <vlc/plugins/vlc_messages.h>
+#include <vlc/plugins/vlc_playlist.h>
 
 #include <QtDebug>
 

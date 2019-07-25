@@ -15,7 +15,6 @@ void logCallback(void *data,
                  const char *fmt,
                  va_list args)
 {
-    return;
     Q_UNUSED(ctx)
 
     DYInstance *instance = static_cast<DYInstance *>(data);
@@ -58,60 +57,20 @@ DYInstance::DYInstance(QObject *parent) : QObject(parent)
     //读取配置文件
     QString encode   = Global->subtitleEncode();
     QString fontName = Global->subtitleFont();
-    int fontSize     = Global->subtitleSize();
-    //int fuzzy        = Global->autodetectFuzzy();
-    int txtOpacity   = Global->textOpacity();
-    int bgOpacity    = Global->bgOpacity();
 
-    QString txtColor     = Global->textColor();
-    QString bgColor      = Global->bgColor();
-    QColor color;
-    color.setNamedColor(txtColor);
-    color.setAlpha(0);
-
-    int i_txtColor = color.rgba();
-
-    color.setNamedColor(bgColor);
-    color.setAlpha(0);
-
-    int i_bgColor = color.rgba();
-
-    switch (fontSize) {
-    case 0: fontSize = 20;
-        break;
-    case 1: fontSize = 18;
-        break;
-    case 2: fontSize = 16;
-        break;
-    case 3: fontSize = 12;
-        break;
-    case 4: fontSize = 6;
-        break;
-    default: fontSize = 16;
-        break;
-    }
-
-    args << "-I" << "--intf=auto"
-         << "-V" << "--vout=direct3d9"
-         //<< "--ignore-config"
-         << "--no-mouse-events"
+    args << "--intf=auto"
+         << "--vout=direct3d"
+         << "--ignore-config"
          << "--no-osd"    //On Screen Display
          << "--no-stats"  //Locally collect statistics
          << "--no-video-title-show"
          << "--no-snapshot-preview" //不显示字幕和截图预览
-         //<< "--directx-use-sysmem"
          << "--file-caching=1000"
          << "--disc-caching=1000"
          << "--network-caching=1000"
-         << "--mouse-hide-timeout=2500"
          << QString("--subsdec-encoding=%1").arg(encode)               //编码格式
          << QString("--freetype-font=%1").arg(fontName)                //字体集 //  Leelawadee UI 泰语
-         << QString("--freetype-rel-fontsize=%1").arg(fontSize)        //20 (较小), 18 (小), 16 (普通), 12 (大), 6 (较大)
-         << QString("--sub-autodetect-fuzzy=0")
-         << QString("--freetype-opacity=%1").arg(txtOpacity)           //文本透明度 [0-255]
-         << QString("--freetype-color=%1").arg(i_txtColor)             //文字颜色
-         << QString("--freetype-background-opacity=%1").arg(bgOpacity) //透明背景色
-         << QString("--freetype-background-color=%1").arg(i_bgColor);  //背景颜色
+         << QString("--sub-autodetect-fuzzy=0");
 
 // Convert arguments to required format
 #if defined(Q_OS_WIN32) // Will be removed on Windows if confirmed working

@@ -31,7 +31,7 @@ QMap<int, QString> DYVideo::subtitles() const
 int DYVideo::subtitle() const
 {
     int subtitle = -1;
-    if (Player_Core && libvlc_media_player_has_vout(Player_Core)) {
+    if (Player_Core/* && libvlc_media_player_has_vout(Player_Core)*/) {
         subtitle = libvlc_video_get_spu(Player_Core);
     }
 
@@ -50,7 +50,7 @@ int DYVideo::subtitleCount() const
 
 void DYVideo::setSubtitleFile(const QString &subtitle)
 {
-    if (Player_Core && libvlc_media_player_has_vout(Player_Core)) {
+    if (Player_Core) {
         libvlc_video_set_subtitle_file(Player_Core, subtitle.toUtf8().data());
     }
 }
