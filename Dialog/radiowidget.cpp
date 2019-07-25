@@ -30,23 +30,23 @@ RadioWidget::RadioWidget(QWidget *parent) : UpdateInterfaceWidget(parent)
     p1.setColor(QPalette::WindowText,Qt::white);
 
     _liveUrlList << "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio5live_mf_p?s=1428556760&e=1428571160&h=ca7f382f56fdebc5f3ea3c23e5e62a3a"
-                 << "http://1661.live.streamtheworld.com:80/WJFKAMAAC_SC?TGT=iTunes&DIST=CBS&SRC=CBS"
-                 << "http://stream.us.gslb.liquidcompass.net/KDUSAMAAC?ats=1"
+                 << "http://54.87.49.15/espn-networkmp3-48"
+                 << "http://ice1.somafm.com/indiepop-128-mp3"
                  << "http://streamingads.hotmixradio.fm/hotmixradio-80-64.aac"
                  << "http://streaming.radionomy.com/ABC-Lounge"
                  << "http://ice.stream.frequence3.net/frequence3-128.mp3"
                  << "http://streaming.radionomy.com/atomik_radio"
                  << "http://online-kissfm.tavrmedia.ua/KissFM"
                  << "http://streaming.radionomy.com/The-Buffalo"
-                 << "http://streaming206.radionomy.com:8888/The-Music-Radio"
-                 << "http://streaming.radionomy.com/BestRadio"
+                 << "http://live.leanstream.co/CHEDAM"
+                 << "http://fm939.wnyc.org/wnycfm-tunein"
                  << "http://streaming.radionomy.com/heart-fm";
-    _liveImaList << ":/res/RadioPreset/bbc.jpg"         << ":/res/RadioPreset/cbssports.jpg"
-                 << ":/res/RadioPreset/nbcsports.png"   << ":/res/RadioPreset/hotmix80.png"
+    _liveImaList << ":/res/RadioPreset/bbc.jpg"         << ":/res/RadioPreset/ESPN Radio.jpg"
+                 << ":/res/RadioPreset/SomaFM.jpg"      << ":/res/RadioPreset/hotmix80.png"
                  << ":/res/RadioPreset/abclounge.jpeg"  << ":/res/RadioPreset/frequence.jpg"
                  << ":/res/RadioPreset/atomikradio.jpg" << ":/res/RadioPreset/kissfm.png"
-                 << ":/res/RadioPreset/buffalo.jpg"     << ":/res/RadioPreset/musicradio.jpg"
-                 << ":/res/RadioPreset/bestradio.jpg"   << ":/res/RadioPreset/heartfm.jpg";
+                 << ":/res/RadioPreset/buffalo.jpg"     << ":/res/RadioPreset/630CHED.png"
+                 << ":/res/RadioPreset/WNYC-FM.png"     << ":/res/RadioPreset/heartfm.jpg";
 
     Sql->initLiveUrl(&_favliveList,2);
     _space = 20 * Global->_screenRatio;
