@@ -27,7 +27,7 @@ CGlobal::CGlobal(QObject *parent) : QObject(parent)
 
     _cur_path = "";
     _version_maj = 6;
-    _version_min = 0;
+    _version_min = 1;
 
     _user_ytb    = false;
     _down_ytb    = false;

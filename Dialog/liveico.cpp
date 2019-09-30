@@ -48,7 +48,7 @@ void LiveIco::favirtesClick()
 void LiveIco::Init()
 {
     _liveImage      = new TransEventLabel(this);
-    _liveType       = new TransEventIco(_liveImage);
+    _liveType       = new TransEventIcoClk(_liveImage);
     _favirtesbtn    = new TransEventIcoClk(_liveImage);
 
     _liveImage->setScaledContents(true);

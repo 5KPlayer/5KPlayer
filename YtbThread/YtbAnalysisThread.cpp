@@ -65,6 +65,8 @@ void YtbAnalysisThread::threadRun()
         {
             emit analysisFinish(m_args.url,analysisJsonByte(outPut));
             return;
+        } else {
+            emit analysisFinish(m_args.url,analysisJsonByte(outPut));
         }
     }
 }
@@ -114,18 +116,21 @@ MEDIAINFO YtbAnalysisThread::analysisJsonObj(const QJsonObject &jsonObj)
     for(int i=0;i<jsonformat.size();++i) {
         _StreamInfo formatinfo;
         // 只加入视频相关信息
-        if(jsonformat.at(i).toObject().value("format_note").toString()== "DASH audio")
-            formatinfo.streamType = 1;
-        else
-            formatinfo.streamType = 2;
         formatinfo.streamId     = jsonformat.at(i).toObject().value("format_id").toString();
         formatinfo.ext          = jsonformat.at(i).toObject().value("ext").toString();
         formatinfo.bitRate      = jsonformat.at(i).toObject().value("fps").toInt();
         formatinfo.codec        = jsonformat.at(i).toObject().value("acodec").toString();
         //formatinfo.format_note  = jsonformat.at(i).toObject().value("format_note").toString();
         formatinfo.fileSize     = jsonformat.at(i).toObject().value("filesize").toInt();
-        formatinfo.resolution.setHeight(jsonformat.at(i).toObject().value("height").toInt());
-        formatinfo.resolution.setWidth(jsonformat.at(i).toObject().value("width").toInt());
+        int height  = jsonformat.at(i).toObject().value("height").toInt();
+        int width   = jsonformat.at(i).toObject().value("width").toInt();
+        if(jsonformat.at(i).toObject().value("format_note").toString()== "tiny" ||
+          (height == 0 && width == 0))
+            formatinfo.streamType = 1;
+        else
+            formatinfo.streamType = 2;
+        formatinfo.resolution.setHeight(height);
+        formatinfo.resolution.setWidth(width);
         if(formatinfo.streamType == 2 && scale.width() < formatinfo.resolution.width())
             scale = formatinfo.resolution;
         mediainfo.streamList.append(formatinfo);

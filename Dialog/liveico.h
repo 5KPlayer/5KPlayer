@@ -33,7 +33,7 @@ protected:
 
 private:
     TransEventLabel*    _liveImage;
-    TransEventIco*      _liveType;
+    TransEventIcoClk*   _liveType;
     TransEventIcoClk*   _favirtesbtn;
 
     QString             _liveUrl;
